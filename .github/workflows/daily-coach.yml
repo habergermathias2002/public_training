@@ -1,0 +1,66 @@
+name: Daily Training Coach & Briefing
+
+on:
+  schedule:
+    # Täglich um 06:00 Uhr und 20:00 Uhr MEZ (05:00 und 19:00 UTC)
+    - cron: '0 5,19 * * *'
+  workflow_dispatch:
+    inputs:
+      note:
+        description: 'Optionaler Hinweis vom Handy (z. B. "Heute kein Rad, verschiebe Tempo-Lauf auf Freitag")'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  coach:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Europe/Berlin
+      GARMIN_API_KEY: ${{ secrets.GARMIN_API_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
+      GOOGLE_BRIDGE_URL: ${{ secrets.GOOGLE_BRIDGE_URL }}
+      GOOGLE_BRIDGE_SECRET: ${{ secrets.GOOGLE_BRIDGE_SECRET }}
+      COACH_RECIPIENT_EMAIL: ${{ secrets.COACH_RECIPIENT_EMAIL }}
+      ATHLETE_NAME: ${{ secrets.ATHLETE_NAME }}
+      COACH_TZ_OFFSET: '+01:00'
+      ATHLETE_NOTE: ${{ github.event.inputs.note }}
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Python 3.12 einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 1. Garmin-Daten (inkl. FIT-Dateien) abrufen & erste Auswertung
+        run: |
+          ./bin/fetch.py --days 3 --fit
+          ./bin/auswertung.py
+
+      - name: 2. AI Cloud Coach (Briefing, Plan-Adaption, Google Calendar & E-Mail)
+        run: |
+          ./bin/cloud_coach.py
+
+      - name: 3. Finale Auswertung & Supabase-Synchronisation
+        run: |
+          ./bin/auswertung.py
+          ./bin/sync_supabase.py
+
+      - name: 4. Aktualisiertes Brain (Daten, Plan, Briefing, gelernte Regeln) ins Repo committen & pushen
+        run: |
+          git config user.name "training-coach-bot"
+          git config user.email "coach-bot@users.noreply.github.com"
+          git add data/ auswertung/ briefings/ plan/ entscheidungen.md athlet/ AGENTS.md framework.md journal/ wissen/
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(coach): Daily Sync & Briefing $(date +%Y-%m-%d)"
+            git push origin HEAD:main
+          fi

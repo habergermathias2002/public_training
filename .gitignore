@@ -1,0 +1,23 @@
+# Zugangsdaten: nie ins Repo (Garmin-API-Key, Access-Token, Supabase Keys)
+api_key.txt
+.token
+.env
+.env*.local
+
+# Zwischenstände, die sich jederzeit neu erzeugen lassen
+auswertung/cache/
+dashboard/index.doc.json
+dashboard/test/
+__pycache__/
+*.pyc
+*.log
+
+# Web-App
+app/node_modules/
+app/dist/
+
+# macOS
+.DS_Store
+
+# Lokale Einstellungen der Coding-Agenten
+.claude/

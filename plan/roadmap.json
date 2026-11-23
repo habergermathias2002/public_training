@@ -1,0 +1,30 @@
+{
+  "stand": "",
+  "hinweis": "Optionale Saison-Roadmap für die Strategie-Ansicht der Web-App (Plan & Kalender -> Strategie).",
+  "ziele": {
+    "langzeit": {
+      "name": "Hauptziel (Prio A)",
+      "datum": "2027-09-01",
+      "ziel": "Zielzeit eintragen",
+      "prio": "A",
+      "splits_ziel": "",
+      "hebel": ""
+    },
+    "nahziel": {
+      "name": "Nahziel (Prio B)",
+      "datum": "2026-12-31",
+      "ziel": "Zielzeit eintragen",
+      "prio": "B",
+      "block": "Block 1",
+      "mission": "Aktuellen Fokusblock definieren",
+      "naechster_check": "Erster Leistungstest"
+    }
+  },
+  "radar": [],
+  "ironman_splits": {
+    "hinweis": "Optional: Split-Projektion für ein Langdistanz-/Triathlon-Hauptziel.",
+    "szenarien": []
+  },
+  "phasen": [],
+  "wochen_overload": []
+}
